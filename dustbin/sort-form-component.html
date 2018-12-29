@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>可排序的表格组件</title>
+		<style type="text/css">
+			[v-cloak]{
+				display: none;
+			}
+			table{
+				width: 100%;
+				margin-bottom: 24px;
+				border-collapse: collapse;
+				border-spacing: 0;
+				empty-cells: show;
+				border: 1px solid #E9E9E9;
+			}
+			table th{
+				background: #F7F7F7;
+				color: #5C6B77;
+				font-weight: 600;
+				white-space: normal;
+			}
+			table td,table th{
+				padding: 8px 16px;
+				border: 1px solid #E9E9E9;
+				text-align: left;
+			}
+			table th a{
+				display: inline-block;
+				margin: 0 4px;
+				cursor: pointer;
+			}
+			table th a.on{
+				color: #3399FF;
+			}
+			table th a:hover{
+				color: #3399FF;
+			}
+			
+		</style>
+	</head>
+	<body>
+		<div id="app" v-cloak>
+			<v-table :data="data" :columns="columns"></v-table>
+			<button @click="handleAddData">添加数据</button>
+		</div>
+		<script src="js/vue.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/x-template" id="table">
+			<table>
+				<thead>
+					<tr>
+						<th v-for="(th,index) in currentColumns">
+							{{th.title}}
+							<a v-if="th.sortable" class="col._sortType==='asc'" 
+							   v-on:click="handleSortByAsc(index)">↑</a>
+							<a v-if="th.sortable" class="col._sortType==='asc'" 
+							   v-on:click="handleSortByDesc(index)">↓</a>
+						</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr v-for="tr in currentData">
+						<template v-for="(td,key) in tr" >
+						<td v-if="key!='_index'">{{td}}</td>
+						</template>
+					</tr>
+				</tbody>
+			</table>
+		</script>
+		<script type="text/javascript">
+			Vue.component('vTable',{
+				props:{
+					columns:{
+						type:Array,
+						default:function(){
+							return [];
+						}
+					},
+					data:{
+						type:Array,
+						default:function(){
+							return [];
+						}
+					}
+				},
+				data:function(){
+					return{
+						currentColumns:[],
+						currentData:[]
+					}
+				},
+//				render:function(h){
+//					var _this=this;
+//					var ths=[];
+//					this.currentColumns.forEach(function(col,index){
+//						if(col.sortable){
+//							ths.push(h('th',[
+//								h('span',col.title),
+//								h('a',{
+//									 // 和`v-bind:class`一样的 API
+//	  								 // 接收一个字符串、对象或字符串和对象组成的数组
+//									class:{
+//										on:col._sortType==='asc'
+//									},
+//									on:{
+//										click:function(){
+//											_this.handleSortByAsc(index)
+//										}
+//									}
+//								},'↑'),
+//								h('a',{
+//									class:{
+//										on:col._sortType==='desc'
+//									},
+//									on:{
+//										click:function(){
+//											_this.handleSortByDesc(index)
+//										}
+//									}
+//								},'↓')
+//							]));	
+//						}else{
+//							ths.push(h('th',col.title));
+//						}
+//					});
+//					var trs=[];
+//					this.currentData.forEach(function(row){
+//						var tds=[];
+//						_this.currentColumns.forEach(function(cel){
+//							tds.push(h('td',row[cel.key]));
+//						});
+//						trs.push(h('tr',tds));
+//					});
+//					return h('table',[
+//						h('thead',[
+//							h('tr',ths)
+//						]),
+//						h('tbody',trs)
+//					])
+//				},
+				template:'#table',
+				methods:{
+					makeColumns:function(){
+						this.currentColumns=this.columns.map(function(col,index){
+							col._sortType='normal';
+							col._index=index;
+							return col;
+						});
+					},
+					makeData:function(){
+						this.currentData=this.data.map(function(row,index){
+							row._index=index;
+							return row;
+						});
+					},
+					handleSortByAsc:function(index){
+						var key=this.currentColumns[index].key;
+						this.currentColumns.forEach(function(col){
+							col._sortType='normal';
+						});
+						this.currentColumns[index]._sortType='asc';
+						this.currentData.sort(function(a,b){
+							return a[key]>b[key]?1:-1;
+						});
+					},handleSortByDesc:function(index){
+						var key=this.currentColumns[index].key;
+						this.currentColumns.forEach(function(col){
+							col._sortType='normal';
+						});
+						this.currentColumns[index]._sortType='desc';
+						this.currentData.sort(function(a,b){
+							return a[key]<b[key]?1:-1;
+						});
+					}
+				},
+				mounted(){
+					this.makeColumns();
+					this.makeData();
+				},
+				watch:{
+					data:function(){
+						this.makeData();
+						var sortedColumn=this.currentColumns.filter(function(col){
+							return col._sortType!='normal';
+						});
+						if(sortedColumn.length>0){
+							if(sortedColumn[0]._sortType==='asc'){
+								this.handleSortByAsc(sortedColumn[0]._index);
+							}else{
+								this.handleSortByDesc(sortedColumn[0]._index);
+							}
+						}
+					}
+				}
+			})
+		</script>
+		<script type="text/javascript">
+			var app=new Vue({
+				el:'#app',
+				data:{
+					columns:[
+						{
+							title:'姓名',
+							key:'name'
+						},
+						{
+							title:'年龄',
+							key:'age',
+							sortable:true
+						},
+						{
+							title:'出生日期',
+							key:'birthday',
+							sortable:true
+						},
+						{
+							title:'地址',
+							key:'address'
+						},
+					],
+					data:[
+						{
+							name:'王小明',
+							age:18,
+							birthday:'1999-02-21',
+							address:'北京市朝阳区芍药居'
+						},
+						{
+							name:'张小刚',
+							age:25,
+							birthday:'1992-01-23',
+							address:'北京市海淀区西二旗'
+						},
+						{
+							name:'李小红',
+							age:30,
+							birthday:'1987-11-10',
+							address:'上海市浦东新区世纪大道'
+						},
+						{
+							name:'周小伟',
+							age:26,
+							birthday:'1991-10-10',
+							address:'深圳市南山区深南大道'
+						},
+					]
+				},
+				methods:{
+					handleAddData:function(){
+						this.data.push({
+							name:'刘小天',
+							age:19,
+							birthday:'1998-05-30',
+							address:'北京市东城区东直门'
+						});
+					}
+				}
+			})
+		</script>
+	</body>
+</html>

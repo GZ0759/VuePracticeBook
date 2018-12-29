@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>出生时间转换</title>
+	</head>
+	<style type="text/css">
+		[v-cloak]{
+			display: none;
+		}
+	</style>
+	<body>
+		<div id="app" v-cloak>
+			<span>
+				恭喜你，你已经活了
+			</span>
+			<div v-birthday="mybirthday" style="display: inline;"></div>
+		</div>
+	</body>
+	<script src="js/vue.js" type="text/javascript" charset="utf-8"></script>
+	<script type="text/javascript">
+		var Time={
+			getUnix:function(){
+				var date=new Date();
+				return date.getTime()
+			},
+			getTodayUnix:function(){
+				var date=new Date();
+				date.setHours(0);
+				date.setMinutes(0);
+				date.setSeconds(0);
+				date.setMilliseconds(0);
+				return date.getTime();
+			},
+			getYearUnix:function(){
+				var date=new Date();
+				date.setMonth(0);
+				date.setDate(1);
+				date.setHours(0);
+				date.setMinutes(0);
+				date.setSeconds(0);
+				date.setMilliseconds(0);
+				return date.getTime();
+			},
+			getFormatTime:function(timestamp){
+				var now=this.getUnix();
+				var timer=(now-timestamp)/1000;
+				var tip='';
+				var year=Math.floor(timer/31622400);
+				var day=Math.floor((timer-year*31622400)/86400);
+				var hour=Math.floor((timer-year*31622400-day*86400)/3600);
+				var minute=Math.floor((timer-year*31622400-day*86400-hour*3600)/60);
+				var second=Math.floor(timer-year*31622400-day*86400-hour*3600-minute*60);
+				tip=year+'年'+day+'日'+hour+'小时'+minute+'分'+second+'秒'
+				
+				return tip;
+			}
+		}
+		Vue.directive('birthday',{
+			bind:function(el,binding){
+				el.innerHTML=Time.getFormatTime(binding.value);
+				el._timeout_=setInterval(function(){
+					el.innerHTML=Time.getFormatTime(binding.value);
+				},1000);
+			},
+			unbind:function(el){
+				clearInterval(el._timeout_);
+				delete el._timeout_
+			}
+		})
+	</script>
+	<script type="text/javascript">
+		var app=new Vue({
+			el:"#app",
+			data:{
+				mybirthday:826895212000
+			}
+		})
+	</script>
+</html>

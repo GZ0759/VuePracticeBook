@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>购物车 商品分类</title>
+    <link rel="stylesheet" href="./css/shoppingCart.css" />
+  </head>
+  <body>
+    <div id="app" v-cloak>
+      <h1 class="text-center">购物车示例 3.0</h1>
+      <!-- 判断二位数组是否为空 -->
+      <template v-if="list.toString() != ',,'">
+        <table>
+          <thead>
+            <tr>
+              <th></th>
+              <th>商品分类</th>
+              <th>商品名称</th>
+              <th>商品单价</th>
+              <th>购买数量</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody v-for="(type,index) in list">
+            <tr v-for="(item,subindex) in type">
+              <td>{{ index + "" + subindex }}</td>
+              <td>{{ item.type }}</td>
+              <td>{{ item.name }}</td>
+              <td>{{ item.price }}</td>
+              <td>
+                <button
+                  @click="handleReduce(index,subindex)"
+                  :disabled="item.count === 1"
+                >
+                  -
+                </button>
+                {{ item.count }} <button @click="handleAdd(index,subindex)">+</button>
+              </td>
+              <td><button @click="handleRemove(index,subindex)">移除</button></td>
+            </tr>
+          </tbody>
+        </table>
+        <div>总价：￥ {{ totalPrice }}</div>
+      </template>
+      <div v-else>购物车为空</div>
+    </div>
+    <script type="text/javascript" src="js/vue.js"></script>
+    <script type="text/javascript">
+      var app = new Vue({
+        el: "#app",
+        data: {
+          list: [
+            [
+              {
+                id: 1,
+                type: "电子产品",
+                name: "iPhone 7",
+                price: 6188,
+                count: 1,
+                checked: true
+              },
+              { id: 2, 
+                type: "电子产品",
+                name: "Ipad Pro", price: 5888, count: 1, checked: true },
+              {
+                id: 3,
+                type: "电子产品",
+                name: "Macbook Pro",
+                price: 21488,
+                count: 1,
+                checked: true
+              }
+            ],
+            [
+              {
+                id: 4,
+                type: "日常用品",
+                name: "毛巾",
+                price: 15,
+                count: 1,
+                checked: true
+              },
+              { id: 5, type: "日常用品",name: "牙刷", price: 10, count: 1, checked: true },
+              { id: 6, type: "日常用品",name: "洗发水", price: 55, count: 1, checked: true }
+            ],
+            [
+              {
+                id: 7,
+                type: "果蔬",
+                name: "榴莲",
+                price: 18,
+                count: 1,
+                checked: true
+              },
+              { id: 8, type: "果蔬",name: "苹果", price: 8, count: 1, checked: true }
+            ]
+          ]
+        },
+        computed: {
+          totalPrice: function() {
+            var total = 0;
+            for (var i = 0; i < this.list.length; i++) {
+              for (var j = 0; j < this.list[i].length; j++) {
+                if (!this.list[i][j].checked) continue;
+                total += this.list[i][j].price * this.list[i][j].count;
+              }
+            }
+            return total.toString().replace(/\B(?=(\d{3})+$)/g, ",");
+          },
+        },
+        methods: {
+          handleReduce: function(index,subindex) {
+            if (this.list[index][subindex].count === 1) return;
+            this.list[index][subindex].count--;
+          },
+          handleAdd: function(index,subindex) {
+            this.list[index][subindex].count++;
+          },
+          handleRemove: function(index,subindex) {
+            this.list[index].splice(subindex, 1);
+          }
+        }
+      });
+    </script>
+  </body>
+</html>

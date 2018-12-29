@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+		<title>调查问卷</title>
+		<style type="text/css">
+			[v-cloak]{
+				display: none;
+			}
+			* {
+  				outline: none;
+			}
+			#app{
+				background-color: #E9E9E9;
+				width: 100%;
+				height: 100%;
+				position: absolute;
+				top: 0;
+				left: 0;
+			}
+			.title{
+				position: relative;
+				top: 20px;
+				font-size: 40px;
+				width: 100%;
+				text-align: center;
+			}
+			.questionnaire{
+				position: relative;
+				top: 60px;
+				margin: 0 20px;
+				font-size: 20px;
+				width: 100%;
+				text-align: inherit;
+			}
+			.buttons{
+				display: block;
+				position: fixed;
+				width: 100%;
+				height: 100px;
+				bottom: 0px;
+				margin: 0 auto;
+			}
+			.red{
+				background-color: #FF4351;
+   				color: white;
+   				border:none;
+   				border-color: #FF4351;
+   				margin: 5px;
+   				border-radius: 200px;
+   				font-size: 16px;
+    			height: 30px;
+    			line-height: 30px;
+    			padding: 0 30px;
+			}
+			.red [disabled]{
+				background-color: #ff7680;
+    			border-color: #ff7680;
+			}
+			.blue{
+				background-color: #1B9AF7;
+   				color: white;
+   				border:none;
+   				border-color: #1B9AF7;
+   				margin: 5px;
+   				border-radius: 200px;
+   				font-size: 16px;
+    			height: 30px;
+    			line-height: 30px;
+    			padding: 0 30px;
+			}
+			.blue[disabled]{
+				background-color: #4cb0f9;
+    			border-color: #4cb0f9;
+			}
+			.green{
+				background-color: #A5DE37;
+   				color: white;
+   				border:none;
+   				border-color: #A5DE37;
+   				margin: 5px;
+   				border-radius: 200px;
+   				font-size: 16px;
+    			height: 30px;
+    			line-height: 30px;
+    			padding: 0 30px;
+			}
+			.green[disabled]{
+				background-color: #b9e563;
+    			border-color: #b9e563;
+			}
+			.btndisable{
+				display: display;
+			}
+			
+		</style>
+	</head>
+	<body>
+		<div id="app" v-cloak>
+			<div class="P1" v-show="Page[0]">
+				<div class="content">
+					<div class="title">
+						题目1
+					</div>
+					<div class="questionnaire">
+						<div class="problem-content">
+							1.请问你的性别是：
+						</div>
+						<div class="problem-options">
+							<input type="radio" id="radioone" value="one" v-model="picked"/>
+							<label for="radioone">男</label>
+							<br>
+							<input type="radio" id="radiotwo" value="two" v-model="picked"/>
+							<label for="radiotwo">女</label>
+							<br>
+							<input type="radio" id="radiothree" value="three" v-model="picked" />
+							<label for="radiothree">保密</label>
+						</div>
+					</div>
+				</div>
+				<div class="buttons">
+					<mybutton name="重置" color="red" :status="statusArr[0]" v-on:parent-handle-click="parentHandleClickMethod"></mybutton>
+					<mybutton name="上一页" color="blue" :status="statusArr[1]" v-on:parent-handle-click="parentHandleClickMethod"></mybutton>
+					<mybutton name="下一页" color="green" :status="statusArr[2]" v-on:parent-handle-click="parentHandleClickMethod"></mybutton>
+				</div>
+			</div>
+			<div class="P2" v-show="Page[1]">
+				<div class="content">
+					<div class="title">
+						题目2
+					</div>
+					<div class="questionnaire">
+						<div class="problem-content">
+							2.请选择你的兴趣爱好：
+						</div>
+						<div class="problem-options">
+							<input id="checkboxone" type="checkbox" value="checkboxone" v-model="toggle"/>
+							<label for="checkboxone">看书</label>
+							<br>
+							<input id="checkboxtwo" type="checkbox" value="checkboxtwo"  v-model="toggle"/>
+							<label for="checkboxtwo">游泳</label>
+							<br>
+							<input id="checkboxthree" type="checkbox" value="checkboxthree" v-model="toggle"/>
+							<label for="checkboxthree">跑步</label>
+							<br>
+							<input id="checkboxfour" type="checkbox" value="checkboxfour" v-model="toggle"/>
+							<label for="checkboxfour">看电影</label>
+							<br>
+							<input id="checkboxfive" type="checkbox" value="checkboxfive"  v-model="toggle"/>
+							<label for="checkboxfive">听音乐</label>
+						</div>
+					</div>
+				</div>
+				<div class="buttons">
+					<mybutton name="重置" color="red" :status="statusArr[3]" v-on:parent-handle-click="parentHandleClickMethod"></mybutton>
+					<mybutton name="上一页" color="blue" :status="statusArr[4]" v-on:parent-handle-click="parentHandleClickMethod"></mybutton>
+					<mybutton name="下一页" color="green" :status="statusArr[5]" v-on:parent-handle-click="parentHandleClickMethod"></mybutton>
+				</div>
+			</div>
+			<div class="P3" v-show="Page[2]">
+				<div class="content">
+					<div class="title">
+						题目3
+					</div>
+					<div class="questionnaire">
+						<div class="problem-content">
+							3.请介绍一个你自己：
+						</div>
+						<div class="problem-options">
+							<textarea v-model="message" placeholder="不少于100字" style="width:300px; height:200px"></textarea>
+						</div>
+					</div>
+				</div>
+				<div class="buttons">
+					<mybutton name="重置" color="red" :status="statusArr[6]" v-on:parent-handle-click="parentHandleClickMethod"></mybutton>
+					<mybutton name="上一页" color="blue" :status="statusArr[7]" v-on:parent-handle-click="parentHandleClickMethod"></mybutton>
+					<mybutton name="下一页" color="green" :status="statusArr[8]" v-on:parent-handle-click="parentHandleClickMethod"></mybutton>
+				</div>
+			</div>
+			<div class="P4" v-show="Page[3]">
+				<div class="content">
+					<div class="title">
+						恭喜你完成问卷！
+					</div>
+				</div>
+			</div>
+		</div>
+	</body>
+	<script src="js/vue.js" type="text/javascript" charset="utf-8"></script>
+	<script type="text/javascript">
+		Vue.component('mybutton',{
+			props:{
+				name:String,
+				color:String,
+				status:Boolean,
+			},
+			template:'<button :class="childColor" \
+				:disabled="status" \
+				@click="handleClick" \
+				>{{childName}}</button>',
+				
+			data:function(){
+					return {
+						childName:this.name,
+						childColor:this.color
+					}
+					
+			},
+			methods:{
+				handleClick:function(){
+					this.$emit('parent-handle-click',this.childName);
+				}
+			},
+		});
+		var vue=new Vue({
+			el:'#app',
+			data:{
+				Page:[
+					true,
+					false,
+					false,
+					false
+				],
+				statusArr:[
+					false,
+					true,
+					true,
+					false,
+					false,
+					true,
+					false,
+					false,
+					true
+				],
+				picked:'',
+				toggle:[],
+				message:''
+			},
+			methods:{
+				parentHandleClickMethod:function(name){
+					if(name=="重置"){
+						this.picked='';
+						this.toggle=[];
+						this.message=''
+					}else if(name=="上一页"){
+						if(this.Page[1]==true){
+							this.Page.splice(0,2,true,false);
+							console.log(this.Page)
+						}else if(this.Page[2]==true){
+							this.Page.splice(1,2,true,false);
+							console.log(this.Page)
+						}
+					}else if(name=="下一页"){
+						if(this.Page[0]==true){
+							this.Page.splice(0,2,false,true)
+						}else if(this.Page[1]==true){
+							this.Page.splice(1,2,false,true)
+						}else if(this.Page[2]==true){
+							this.Page.splice(2,2,false,true)
+						}
+					}else{
+						console.log("没有方法");
+					}
+				}
+			},
+			watch:{
+				picked:function(){
+					if(this.picked!=''){
+						this.statusArr.splice(2,1,false);
+					}else{
+						this.statusArr.splice(2,1,true);
+					}
+				},
+				toggle:function(){
+					if(this.toggle.length>1){
+						this.statusArr.splice(5,1,false);
+					}else{
+						this.statusArr.splice(5,1,true);
+					}
+				},
+				message:function(){
+					if(this.message.length>=100){
+						this.statusArr.splice(8,1,false);
+					}else{
+						this.statusArr.splice(8,1,true);
+					}
+				}
+			}
+
+		})
+	</script>
+</html>

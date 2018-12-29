@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>标签页组件</title>
+		<style type="text/css">
+			[v-cloak]{
+				display: none;
+			}
+			.tabs{
+				font-size: 14px;
+				color: #657180;
+			}
+			/*.tabs-bar:after{
+				content: '';
+				display: block;
+				width: 100%;
+				height: 1px;
+				background: #d7dde4;
+				margin-top: -1px;
+			}*/
+			.tabs-tab{
+				display: inline-block;
+				width: 105px;
+				padding: 4px 16px;
+				margin-right: 6px;
+				background: #fff;
+				border: 1px solid #7dde4;
+				cursor: pointer;
+				position: relative;
+			}
+			.tabs-tab-active{
+				color: #3399ff;
+				border-top: 1px solid #3399FF;
+				border-bottom: 1px solid #FFFFFF;
+			}
+			.tabs-tab-active:before{
+				content: '';
+				display: block;
+				height: 1px;
+				background: #3399FF;
+				position: absolute;
+				top: 0;
+				left: 0;
+				right: 0;
+			}
+			.tabs-content{
+				padding: 8px 0;
+			}
+			
+			.fade-enter-active, .fade-leave-active {
+			  transition: opacity .5s;
+			}
+			.fade-enter, .fade-leave-to {
+			  opacity: 0
+			}
+			
+		</style>
+	</head>
+	<body>
+		<div id="app" v-cloak>
+			<tabs v-model="activeKey">
+				<pane label="标签一" name="1">
+					这是标签一的内容
+				</pane>
+				<pane label="标签二" name="2">
+					这是标签二的内容
+				</pane>
+				<pane label="标签三" name="3">
+					这是标签三的内容
+				</pane>
+			</tabs>
+		</div>
+	</body>
+	<script src="js/vue.js" type="text/javascript" charset="utf-8"></script>
+	
+		
+<!--pane.js-->
+	<script type="text/javascript">
+		Vue.component('pane',{
+			name:'pane',
+			template:'\
+				<transition name="fade"> \
+				<div class="pane" v-show="show">\
+					<slot></slot>\
+				</div> \
+				</transition>',
+			props:{
+				closable:{
+					type:Boolean,
+					default:true
+				},
+				name:{
+					type:String
+				},
+				label:{
+					type:String,
+					default:''
+				}
+			},
+			data:function(){
+				return{
+					show:true,
+				}
+			},
+			methods:{
+//				更新标题
+				updateNav(){
+					this.$parent.updateNav();
+				}
+			},
+			watch:{
+				label(){
+					this.updateNav();
+				}
+			},
+			mounted(){
+				this.updateNav();
+			}
+		})
+	</script>
+
+<!--tabs.js-->
+	<script type="text/javascript">
+
+		Vue.component('tabs',{
+			template:'\
+				<div class="tabs">\
+					<div class="tabs-bar">\
+						<div \
+							:class="tabCls(item)" \
+							v-for="(item,index) in navList" \
+							@click="handleChange(index)"> \
+								{{item.label}} \
+								<button \
+								v-if="item.closable==true" \
+								@click="handleClose(index)">关 \
+								</button> \
+								<button \
+								v-else \
+								@click="handleOpen(index)">开 \
+								</button> \
+						</div> \
+					</div>\
+					<div class="tabs-content">\
+						<slot></slot>\
+					</div>\
+				</div>',
+			props:{
+				value:{
+					type:[String,Number]
+				}
+			},
+			data:function(){
+				return{
+					currentValue:this.value,
+					navList:[],
+				}
+			},
+			methods:{
+				tabCls:function(item){
+					return[
+						'tabs-tab',
+						{
+							'tabs-tab-active':item.name===this.currentValue
+						}
+					]
+				},
+				getTabs(){
+//					通过遍历子组件,得到所有的pane组件
+					return this.$children.filter(function(item){
+						return item.$options.name==='pane';
+					});
+				},
+				updateNav(){
+					this.navList=[];
+					var _this=this;
+					
+					this.getTabs().forEach(function(pane,index){
+						_this.navList.push({
+							label:pane.label,
+							name:pane.name||index,
+							closable:pane.closable
+						});
+						if(!pane.name)pane.name=index;
+						if(index===0){
+							if(!_this.currentValue){
+								_this.currentValue=pane.name||index;
+							}
+						}
+					});
+					this.updateStatus();
+				},
+				updateStatus(){
+					var _this=this;
+					var test=0;
+					this.getTabs().forEach(function(tab){
+						return tab.show=tab.name===_this.currentValue;
+					});
+				},
+				handleChange:function(index){
+					var nav=this.navList[index];
+					var name=nav.name;
+					this.currentValue=name;
+					this.$emit('input',name);
+					this.$emit('on-click',name);
+//					this.handleOpen(index);
+				},
+				handleClose:function(index){
+					if (this.currentValue!=this.navList[index].name) return
+					this.navList[index].closable=false;
+//					window.event.stopPropagation()
+					this.getTabs()[index].show=false;
+				},
+				handleOpen:function(index){
+					this.navList[index].closable=true;
+//					window.event.stopPropagation();
+					this.getTabs()[index].show=true;
+					var nav=this.getTabs()[index];
+					this.getTabs().forEach(function(tab){
+						if(tab.name!=nav.name)
+						tab.show=false
+					})
+				},
+				updatePane:function(){
+					console.log("aa")
+				}
+			},
+			watch:{
+				value:function(val){
+					this.currentValue=val;
+				},
+				currentValue:function(){
+					this.updateStatus();
+				},
+			}
+		})
+	</script>	
+	
+	<script type="text/javascript">
+		var app=new Vue({
+			el:'#app',
+			data:{
+				activeKey:'1'
+			}
+		})
+	</script>
+</html>
